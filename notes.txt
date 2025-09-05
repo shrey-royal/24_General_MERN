@@ -1,0 +1,20 @@
+npm -> Node Package Manager
+
+npm init -> create new package.json file in the project (metadata), it includes:
+    - project name, version, description
+    - Author, license
+    - Dependencies (libraries)
+    - Scripts (commands to run in the project like build, tests, run, etc.)
+
+with package.json we can manage the project dependencies.
+
+Adding Dependencies:
+
+-- package level
+- npm install <pkg> (e.g. npm install express or npm i express)
+
+-- dev only deps
+- npm i --save-dev <pkg> (e.g. npm i --save-dev nodemon)
+
+-- global deps (gloablly)
+- npm i <pkg> -g (e.g. npm i express -g)
