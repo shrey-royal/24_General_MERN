@@ -1,14 +1,11 @@
-// params export
-// const {studentName, grade} = require('./basics/students');
+const express = require('express');
+const app = express();
+const PORT = 9000;
 
-// console.log(studentName, grade);
+app.get('/', (req, res) => {
+    res.send("Hello World from Express.js!");
+})
 
-
-// function export
-const user = require('./basics/user')
-
-user.userData()
-
-console.log(user.add(2, 3));
-console.log(user.getUserById(1));
-
+app.listen(PORT, () => {
+    console.log(`Express server running at http://127.0.0.1:${PORT}`);
+})
