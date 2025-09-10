@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 // mongodb://127.0.0.1:27017/<dbname>
-const uri = "mongodb://127.0.0.1:27017/node"
+const uri = ""
 
 const dbConnection = async() => {
     const connection = await mongoose.connect(uri)
