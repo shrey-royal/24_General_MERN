@@ -1,14 +1,14 @@
 {
-  "name": "pro0",
+  "name": "pro1",
   "version": "1.0.0",
-  "description": "this is a demo project to learn node backend",
-  "main": "app.js",
+  "description": "...",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Shrey K",
+  "author": "Shrey k",
   "dependencies": {
     "express": "^5.1.0",
     "mongoose": "^8.18.1"
