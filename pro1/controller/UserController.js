@@ -1,15 +1,19 @@
 const userModel = require('../model/UserModel');
+const encrypt = require('../util/encrypt');
+const token = require('../util/token');
 
 // Add a new user
 const addUser = async (req, res) => {
     try {
-        const { name, email, age } = req.body;
+        const { name, email, age, password } = req.body;
 
-        if (!name || !email || !age) {
+        if (!name || !email || !age || !password) {
             return res.status(400).json({ message: "Missing required fields" });
         }
-
-        const newUser = await userModel.create({ name, email, age });
+        
+        // encrypt password before adding into DB
+        const hashedPassword = encrypt.encryptPassword(password);
+        const newUser = await userModel.create({ name, email, age, hashedPassword });
 
         res.status(201).json({
             message: "User created successfully",
@@ -111,8 +115,10 @@ const getUserByAgeRange = async (req, res) => {
 const updateUserById = async (req, res) => {
     try {
         const id = req.params.id;
-        const userData = req.body;
-
+        const hashedPassword = encrypt.encryptPassword(req.body.password);
+        const userData = Object.assign(req.body, {
+            password: hashedPassword
+        });
         const updatedUser = await userModel.findByIdAndUpdate(id, userData, { new: true });
 
         if (!updatedUser) {
@@ -133,8 +139,10 @@ const updateUserById = async (req, res) => {
 const updateUserByEmail = async (req, res) => {
     try {
         const email = req.params.email;
-        const userData = req.body;
-
+        const hashedPassword = encrypt.encryptPassword(req.body.password);
+        const userData = Object.assign(req.body, {
+            password: hashedPassword
+        });
         const updatedUser = await userModel.findOneAndUpdate({ email }, userData, { new: true });
 
         if (!updatedUser) {
@@ -171,6 +179,41 @@ const deleteUser = async (req, res) => {
     }
 };
 
+// Login User
+const loginUser = async(req, res) => {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+
+        const userData = await userModel.findOne({ email: email });
+
+        if (userData) {
+            const isPasswordMatched = encrypt.comparePassword(password, userData.password);
+
+            if (isPasswordMatched == true) {
+                const tk = token.generateToken(userData.toObject())
+                res.status(200).json({
+                    message: "Login success!",
+                    data: tk
+                });
+            } else {
+                res.status(400).json({
+                    message: "Invalid Password"
+                });
+            }
+        } else {
+            res.status(400).json({
+                message: "Invalid Credentials"
+            });
+        }
+    } catch (err) {
+        res.status(500).json({
+            message: "Internal server error",
+            error: err
+        });
+    }
+}
+
 module.exports = {
     addUser,
     getAllUsers,
@@ -179,5 +222,6 @@ module.exports = {
     getUserByAgeRange,
     updateUserById,
     updateUserByEmail,
-    deleteUser
+    deleteUser,
+    loginUser
 };
