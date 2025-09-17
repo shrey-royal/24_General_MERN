@@ -11,9 +11,11 @@
   "author": "Shrey k",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
+    "multer": "^2.0.2",
     "zod": "^4.1.8"
   },
   "devDependencies": {

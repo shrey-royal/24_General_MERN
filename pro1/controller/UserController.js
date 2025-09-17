@@ -1,6 +1,8 @@
 const userModel = require('../model/UserModel');
 const encrypt = require('../util/encrypt');
 const token = require('../util/token');
+const cloudinaryController = require('../controller/CloudinaryController');
+const multer = require("multer")
 
 // Add a new user
 const addUser = async (req, res) => {
@@ -214,6 +216,55 @@ const loginUser = async(req, res) => {
     }
 }
 
+const storage = multer.diskStorage({
+    destination: "./uploads",
+    filename: function(req, file, callback) {
+        callback(null, file.originalname);
+    },
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: function(req, file, callback) {
+        if (file.mimetype == "image/jpeg" || file.mimetype == 'image/png' || file.mimetype == "image/jpg") {
+            callback(null, true);
+        } else {
+            return callback(new Error("only .jpeg, .png, .jpg formats are allowed!"))
+        }
+    }
+}).single("file");
+
+// uploadFile
+const uploadFile = async(req, res) => {
+    try {
+        upload(req, res, async(err) => {
+            if (err) {
+                res.status(500).json({
+                    message: err.message
+                });
+            } else {
+                if (req.file) {
+                    const result = await cloudinaryController.uploadFile(req.file);
+
+                    res.status(200).json({
+                        message: "File uploaded successfully",
+                        data: req.file,
+                        cloudinaryData: result
+                    });
+                } else {
+                    res.status(400).json({
+                        message: "file not found",
+                    });
+                }
+            }
+        })
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+        });
+    }
+}
+
 module.exports = {
     addUser,
     getAllUsers,
@@ -223,5 +274,6 @@ module.exports = {
     updateUserById,
     updateUserByEmail,
     deleteUser,
-    loginUser
+    loginUser,
+    uploadFile
 };
