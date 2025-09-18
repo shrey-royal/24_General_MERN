@@ -18,3 +18,6 @@ Adding Dependencies:
 
 -- global deps (gloablly)
 - npm i <pkg> -g (e.g. npm i express -g)
+
+
+slja qtjy nvxy nqxr

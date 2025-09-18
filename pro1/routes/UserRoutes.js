@@ -15,5 +15,6 @@ router.put("/email/:email", userController.updateUserByEmail);
 router.delete("/:id", userController.deleteUser);
 router.post("/login", userController.loginUser);
 router.post("/upload", userController.uploadFile);
+router.post("/verify", userController.verifyUser);
 
 module.exports = router;

@@ -3,6 +3,8 @@ const encrypt = require('../util/encrypt');
 const token = require('../util/token');
 const cloudinaryController = require('../controller/CloudinaryController');
 const multer = require("multer")
+const mailUtil = require("../util/mailUtil");
+const otpSchema = require("../model/OtpModel");
 
 // Add a new user
 const addUser = async (req, res) => {
@@ -16,6 +18,15 @@ const addUser = async (req, res) => {
         // encrypt password before adding into DB
         const hashedPassword = encrypt.encryptPassword(password);
         const newUser = await userModel.create({ name, email, age, hashedPassword });
+        const sendMail = mailUtil.sendMail(newUser.email, "Welcome", "Welcome to our app");
+        
+        const otp = Math.floor(1000 + Math.random() * 9000);
+        const otpObject = {
+            email: newUser.email,
+            otp: otp
+        };
+        await otpSchema.create(otpObject);
+        await mailUtil.sendMail(newUser.email, "Validate your E-mail", `Your OTP is ${otp}`);
 
         res.status(201).json({
             message: "User created successfully",
@@ -265,6 +276,45 @@ const uploadFile = async(req, res) => {
     }
 }
 
+// Verify User
+const verifyUser = async (req, res) => {
+    const email = req.body.email;
+    const otp = req.body.otp;
+
+    const isMatch = await otpSchema.findOne({
+        email: email,
+        otp: otp
+    });
+
+    if (isMatch) {
+        await userModel.findOneAndUpdate(
+            {
+                email: email
+            },
+            {
+                $set: {
+                    status: true
+                }
+            }
+        );
+
+        await otpSchema.findOneAndDelete({
+            email: email,
+            otp: otp
+        });
+
+        res.status(200).json({
+            message: "User verified successfully"
+        });
+    } else {
+        res.status(400).json({
+            message: "Invalid otp"
+        });
+    }
+
+
+}
+
 module.exports = {
     addUser,
     getAllUsers,
@@ -275,5 +325,6 @@ module.exports = {
     updateUserByEmail,
     deleteUser,
     loginUser,
-    uploadFile
+    uploadFile,
+    verifyUser
 };

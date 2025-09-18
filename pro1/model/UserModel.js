@@ -12,7 +12,11 @@ const userSchema = new Schema({
         unique: true
     },
     age: Number,
-    password: String
+    password: String,
+    status: {
+        type: Boolean,
+        default: false
+    }
 }, { collection: 'users' });
 
 module.exports = mongoose.model("User", userSchema)
