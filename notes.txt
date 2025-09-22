@@ -1,0 +1,6 @@
+to create a react app:
+
+comment - npx create-react-app@latest pro0
+npx create-react-app pro0
+
+npm init react-app pro0
