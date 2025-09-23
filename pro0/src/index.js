@@ -1,13 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import { App, Profile } from './App';
-// import Profile from './Comp1';
+import './output.css';
+// import App from './App';
+import { Login, Register } from './Auth';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
-    <Profile />
+    <Register />
   </React.StrictMode>
 );
