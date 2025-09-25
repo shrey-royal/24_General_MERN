@@ -4,6 +4,5 @@
 
 /* Dark Mode background */
 body {
-    @apply bg-gray-900 text-white;
-    font-family: 'Inter', sans-serif;
+    @apply bg-white text-black font-sans;
 }
