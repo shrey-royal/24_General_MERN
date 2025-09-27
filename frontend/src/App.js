@@ -1,14 +1,61 @@
-import ProductList from "./ProductList";
+import { createContext, useContext, useState } from "react";
 
-function App() {
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-6 rounded-2xl shadow-lg">
-                <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
-                <ProductList />
-            </div>
+// 1. Create context
+const AuthContext = createContext();
+
+// 2. Provider
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+
+  const login = (name) => setUser({ name });
+  const logout = () => setUser(null);
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// 3. Consume in Navbar
+function Navbar() {
+  const { user, logout } = useContext(AuthContext);
+  return (
+    <div className="flex justify-between p-4 bg-gray-200">
+      <h1>MyApp</h1>
+      {user ? (
+        <div>
+          Welcome, {user.name}! 
+          <button onClick={logout} className="ml-2 text-red-500">Logout</button>
         </div>
-    );
+      ) : (
+        <span>Guest</span>
+      )}
+    </div>
+  );
+}
+
+// 4. A button that logs in user
+function LoginButton() {
+  const { login } = useContext(AuthContext);
+  return (
+    <button
+      onClick={() => login("Alice")}
+      className="m-4 bg-green-500 p-2 text-white"
+    >
+      Login as Alice
+    </button>
+  );
+}
+
+// 5. Wrap everything in AuthProvider
+function App() {
+  return (
+    <AuthProvider>
+      <Navbar />
+      <LoginButton />
+    </AuthProvider>
+  );
 }
 
 export default App;
