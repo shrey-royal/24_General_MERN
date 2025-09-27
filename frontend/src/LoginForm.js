@@ -1,27 +1,45 @@
-import { useRef } from "react";
+import { useState } from "react";
 
 function LoginForm() {
-    const inputRef = useRef(null);
+    const [formData, setFormData] = useState({ email: "", password: "" });
 
-    const focusInput = () => {
-        inputRef.current.focus();   // directly focuses the input
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("User login data: ", formData);
     }
 
     return (
-        <div className="p-4">
+        <form onSubmit={handleSubmit} className="p-4">
             <input
-                ref={inputRef}
-                type="text"
-                placeholder="Enter username"
-                className="border p-2 rounded"
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                className="border p-2 mb-2 block"
+            />
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="border p-2 mb-2 block"
             />
             <button
-                onClick={focusInput}
-                className="ml-2 bg-blue-500 text-white px-3 py-1 rounded"
+                type="submit"
+                className="bg-blue-500 text-white p-2 rounded"
             >
-                Focus Input
+                Login
             </button>
-        </div>
+        </form>
     );
 }
 
