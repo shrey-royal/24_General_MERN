@@ -1,0 +1,4 @@
+backend:
+npm i express mongoose dotenv bcryptjs jsonwebtoken cookie-parser cors nodemailer multer morgan
+
+npm i --save-dev nodemon
