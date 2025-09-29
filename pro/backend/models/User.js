@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+const addressSchema = new mongoose.Schema({
+    fullName: String,
+    street: String,
+    city: String,
+    state: String,
+    country: String,
+    postalCode: String,
+    phone: String,
+});
+
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
@@ -11,23 +21,18 @@ const userSchema = new mongoose.Schema({
         default: "user",
     },
     isVerified: { type: Boolean, default: false },
-    addresses: [
-        {
-            fullName: String,
-            street: String,
-            city: String,
-            state: String,
-            country: String,
-            postalCode: String,
-            phone: String,
-        },
-    ],
+    verifyToken: String,
+    verifyTokenExpires: Date,
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    addresses: [addressSchema],
 }, { timestamps: true });
 
 // Hash password before save
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 10);
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
