@@ -5,6 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import connectDB from "./config/db.js";
 import {notFound, errorHandler} from "./middlewares/errorMiddleware.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -23,6 +24,9 @@ app.get("/", (req, res) => {
 
 app.use(notFound);
 app.use(errorHandler);
+
+// routes
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
