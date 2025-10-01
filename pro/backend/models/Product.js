@@ -1,21 +1,33 @@
-import mongoose from "mongoose";
-
-const reviewSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    rating: { type: Number, required: true, min: 1, max: 5 },
-    comments: { type: String },
-}, { timestamps: true });
+const mongoose = require("mongoose")
 
 const productSchema = new mongoose.Schema({
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", required: true },
-    title: { type: String, required: true, trim: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true },
-    stock: { type: Number, required: true },
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-    images: [String],
-    ratings: { type: Number, default: 0 },
-    reviews: [reviewSchema],
+    name: {
+        type: String,
+        required: [true, "Please add a product name"],
+    },
+    description: {
+        type: String,
+        required: [true, "Please add a description"],
+    },
+    price: {
+        type: Number,
+        required: [true, "Please add a price"],
+        default: 0,
+    },
+    image: {
+        type: String,
+        required: false,
+        default: "https://placehold.co/150",
+    },
+    category: {
+        type: String,
+        required: true,
+    },
+    countInStock: {
+        type: Number,
+        required: true,
+        default: 0,
+    }
 }, { timestamps: true });
 
-export default mongoose.model("Product", productSchema);
+module.exports = mongoose.model("Product", productSchema);
