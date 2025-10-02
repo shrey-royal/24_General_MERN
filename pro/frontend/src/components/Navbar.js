@@ -1,85 +1,56 @@
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { ShoppingCart, Search } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, X } from "lucide-react";
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function Navbar({ cartCount, onSearch }) {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
+
+    onSearch(query);
+  };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        
+    <nav className="bg-white shadow-md">
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-indigo-600">
-          MyShop
-        </Link>
+        <Link to="/" className="text-2xl font-bold text-indigo-600">MyShop</Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link to="/" className="text-gray-700 hover:text-indigo-600 transition">
-            Home
-          </Link>
-          <Link to="/products" className="text-gray-700 hover:text-indigo-600 transition">
-            Products
-          </Link>
-          <Link to="/about" className="text-gray-700 hover:text-indigo-600 transition">
-            About
-          </Link>
+        {/* Search Bar */}
+        <form onSubmit={handleSubmit} className="hidden md:flex items-center w-1/2 mx-6">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search products..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700">
+            <Search className="w-5 h-5" />
+          </button>
+        </form>
 
-          {/* Cart */}
+        {/* Links & Cart */}
+        <div className="flex space-x-6 items-center">
+          <Link to="/" className="text-gray-700 hover:text-indigo-600">Products</Link>
+          <Link to="/about" className="text-gray-700 hover:text-indigo-600">About</Link>
           <Link to="/cart" className="relative">
             <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-indigo-600" />
-            <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-              2
-            </span>
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {cartCount}
+              </span>
+            )}
           </Link>
         </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-gray-700"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
       </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-t shadow-md">
-          <div className="flex flex-col items-center py-4 space-y-4">
-            <Link
-              to="/"
-              className="text-gray-700 hover:text-indigo-600"
-              onClick={() => setIsOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/products"
-              className="text-gray-700 hover:text-indigo-600"
-              onClick={() => setIsOpen(false)}
-            >
-              Products
-            </Link>
-            <Link
-              to="/about"
-              className="text-gray-700 hover:text-indigo-600"
-              onClick={() => setIsOpen(false)}
-            >
-              About
-            </Link>
-            <Link
-              to="/cart"
-              className="flex items-center gap-2 text-gray-700 hover:text-indigo-600"
-              onClick={() => setIsOpen(false)}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              <span>Cart (2)</span>
-            </Link>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }

@@ -1,19 +1,37 @@
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Products from "./pages/Products";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Cart from "./pages/Cart";
+import About from "./pages/About";
 
-function App() {
+export default function App() {
+  const [cartItems, setCartItems] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const addToCart = (product) => {
+    setCartItems((prev) => {
+      const exists = prev.find((item) => item._id === product._id);
+      if (exists) {
+        return prev.map((item) =>
+          item._id === product._id
+            ? { ...item, quantity: Math.min(item.quantity + 1, product.countInStock) }
+            : item
+        );
+      } else {
+        return [...prev, { ...product, quantity: 1 }];
+      }
+    });
+  };
+
   return (
     <Router>
-      <Navbar />
+      <Navbar cartCount={cartItems.length} onSearch={setSearchQuery} />
       <Routes>
-        <Route path="/" element={<Products />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/about" element={<h1 className="p-6">About Page</h1>} />
-        <Route path="/cart" element={<h1 className="p-6">Cart Page</h1>} />
+        <Route path="/" element={<Products addToCart={addToCart} searchQuery={searchQuery} />} />
+        <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </Router>
   );
 }
-
-export default App;
