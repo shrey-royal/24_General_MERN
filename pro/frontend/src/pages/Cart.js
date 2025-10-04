@@ -1,4 +1,5 @@
 import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
+import { createOrder } from "../api";
 
 export default function Cart({ cartItems, setCartItems }) {
   const updateQuantity = (id, delta) => {
@@ -18,6 +19,38 @@ export default function Cart({ cartItems, setCartItems }) {
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = 99;
   const total = subtotal + shipping;
+
+  const handleSubmit = async () => {
+    try {
+      
+      const orderData = {
+        orderItems: cartItems.map(item => ({
+          product: item._id,
+          qty: item.quantity,
+        })),
+        shippingAddress: {
+          name: "John Doe",
+          line1: "123 Main Street",
+          city: "New York",
+          postalCode: "10001",
+          country: "USA",
+          phone: "+1 555 883667",
+        },
+        paymentMethod: "COD",
+      };
+      console.log("in try", orderData);
+
+      const { data } = await createOrder(orderData);
+
+      alert("Order placed successfully!");
+      console.log("Order Placed: ", data);
+
+      setCartItems([]);
+    } catch (error) {
+      console.error("Order error: ", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Failed to place order");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -83,7 +116,7 @@ export default function Cart({ cartItems, setCartItems }) {
                   </div>
                 </div>
 
-                <button className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-semibold">
+                <button onClick={handleSubmit} className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-semibold">
                   Proceed to Checkout
                 </button>
               </div>
