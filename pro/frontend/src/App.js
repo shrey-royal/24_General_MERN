@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Products from "./pages/Products";
 import Cart from "./pages/Cart";
@@ -7,11 +7,15 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import MyOrders from "./pages/MyOrders";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
 
-export default function App() {
+function AppContent() {
   const [cartItems, setCartItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [authUser, setAuthUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -31,6 +35,7 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setAuthUser(null);
+    navigate("/"); // Redirect to home page after logout
   };
 
   const addToCart = (product) => {
@@ -49,7 +54,7 @@ export default function App() {
   };
 
   return (
-    <Router>
+    <>
       <Navbar
         cartCount={cartItems.length}
         onSearch={setSearchQuery}
@@ -63,7 +68,18 @@ export default function App() {
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/signup" element={<Signup onSignup={handleSignup} />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/orders" element={<MyOrders />} />
+        <Route path="/checkout" element={<Checkout cartItems={cartItems} setCartItems={setCartItems} />} />
+        <Route path="/order-success/:id" element={<OrderSuccess />} />
       </Routes>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

@@ -38,6 +38,7 @@ const orderSchema = mongoose.Schema(
     paidAt: Date,
     isDelivered: { type: Boolean, default: false },
     deliveredAt: Date,
+    transactionId: { type: String }, // ✅ add this line
   },
   { timestamps: true }
 );

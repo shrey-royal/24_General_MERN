@@ -1,7 +1,9 @@
 import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
-import { createOrder } from "../api";
+// import { createOrder } from "../api";
+import { useNavigate } from "react-router-dom";
 
 export default function Cart({ cartItems, setCartItems }) {
+  const navigate = useNavigate();
   const updateQuantity = (id, delta) => {
     setCartItems(items =>
       items.map(item =>
@@ -20,37 +22,53 @@ export default function Cart({ cartItems, setCartItems }) {
   const shipping = 99;
   const total = subtotal + shipping;
 
+  // const handleSubmit = async () => {
+  //   try {
+
+  //     const orderData = {
+  //       orderItems: cartItems.map(item => ({
+  //         product: item._id,
+  //         qty: item.quantity,
+  //       })),
+  //       shippingAddress: {
+  //         name: "John Doe",
+  //         line1: "123 Main Street",
+  //         city: "New York",
+  //         postalCode: "10001",
+  //         country: "USA",
+  //         phone: "+1 555 883667",
+  //       },
+  //       paymentMethod: "COD",
+  //     };
+  //     console.log("in try", orderData);
+
+  //     const { data } = await createOrder(orderData);
+
+  //     alert("Order placed successfully!");
+  //     console.log("Order Placed: ", data);
+
+  //     setCartItems([]);
+  //   } catch (error) {
+  //     console.error("Order error: ", error.response?.data || error.message);
+  //     alert(error.response?.data?.message || "Failed to place order");
+  //   }
+  // };
+
   const handleSubmit = async () => {
-    try {
-      
-      const orderData = {
-        orderItems: cartItems.map(item => ({
-          product: item._id,
-          qty: item.quantity,
-        })),
-        shippingAddress: {
-          name: "John Doe",
-          line1: "123 Main Street",
-          city: "New York",
-          postalCode: "10001",
-          country: "USA",
-          phone: "+1 555 883667",
-        },
-        paymentMethod: "COD",
-      };
-      console.log("in try", orderData);
-
-      const { data } = await createOrder(orderData);
-
-      alert("Order placed successfully!");
-      console.log("Order Placed: ", data);
-
-      setCartItems([]);
-    } catch (error) {
-      console.error("Order error: ", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Failed to place order");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      alert("Please log in before proceeding to checkout.");
+      navigate("/login");
+      return;
     }
-  };
+
+    if (cartItems.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    navigate("/checkout"); // go to the checkout page
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -72,7 +90,7 @@ export default function Cart({ cartItems, setCartItems }) {
                   <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-lg" />
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
-                    <p className="text-indigo-600 font-bold mt-1">₹{item.price}</p>
+                    <p className="text-indigo-600 font-bold mt-1">${item.price}</p>
 
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center border rounded-lg">
@@ -90,7 +108,7 @@ export default function Cart({ cartItems, setCartItems }) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-gray-800">₹{item.price * item.quantity}</p>
+                    <p className="text-lg font-bold text-gray-800">${item.price * item.quantity}</p>
                   </div>
                 </div>
               ))}
@@ -104,15 +122,15 @@ export default function Cart({ cartItems, setCartItems }) {
                 <div className="space-y-3 mb-4">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span>₹{subtotal}</span>
+                    <span>${subtotal}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
-                    <span>₹{shipping}</span>
+                    <span>${shipping}</span>
                   </div>
                   <div className="border-t pt-3 flex justify-between text-lg font-bold text-gray-800">
                     <span>Total</span>
-                    <span>₹{total}</span>
+                    <span>${total}</span>
                   </div>
                 </div>
 

@@ -66,4 +66,23 @@ const updateAddress = asyncHandler(async (req, res) => {
     res.json(user.addresses);
 });
 
-module.exports = { getAddresses, addAddress, updateAddress };
+const deleteAddress = asyncHandler(async (req, res) => {
+  const idx = parseInt(req.params.index, 10);
+  const user = await User.findById(req.user.id);
+
+  if (!user || isNaN(idx) || idx < 0 || idx >= user.addresses.length) {
+    res.status(404);
+    throw new Error("Address not found");
+  }
+
+  // Remove address
+  user.addresses.splice(idx, 1);
+
+  await user.save();
+  res.json({
+    message: "Address deleted successfully",
+    addresses: user.addresses,
+  });
+});
+
+module.exports = { getAddresses, addAddress, updateAddress, deleteAddress };

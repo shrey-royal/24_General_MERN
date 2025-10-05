@@ -31,7 +31,7 @@ export default function Products({ addToCart, searchQuery }) {
               <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded-lg" />
               <h2 className="text-lg font-semibold mt-3">{product.name}</h2>
               <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-              <p className="text-indigo-600 font-bold mt-2">₹{product.price}</p>
+              <p className="text-indigo-600 font-bold mt-2">${product.price}</p>
               <button
                 onClick={() => addToCart(product)}
                 className="mt-3 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"

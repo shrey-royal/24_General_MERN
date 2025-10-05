@@ -17,6 +17,7 @@ app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/addresses", require("./routes/addressRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/api/payments", require("./routes/paymentRoutes"));
 
 // basic error handler
 app.use((err, req, res, next) => {

@@ -4,6 +4,7 @@ import {
     updateMyProfile,
     getAddresses,
     addAddress,
+    deleteAddress,
 } from "../api";
 
 export default function Profile() {
@@ -53,9 +54,7 @@ export default function Profile() {
             const { data } = await updateMyProfile(editForm);
             setUser(data);
             setIsEditing(false);
-            console.log(data);
 
-            // also update localStorage so Navbar shows updated name
             const saved = JSON.parse(localStorage.getItem("user"));
             localStorage.setItem("user", JSON.stringify({ ...saved, ...data }));
         } catch (err) {
@@ -112,6 +111,17 @@ export default function Profile() {
             phone: "",
             isDefault: false,
         });
+    };
+
+    // ===== Delete Address =====
+    const handleRemoveAddress = async (index) => {
+        if (!window.confirm("Are you sure you want to remove this address?")) return;
+        try {
+            const { data } = await deleteAddress(index);
+            setAddresses(data.addresses || data); // depending on backend response
+        } catch (err) {
+            console.error("Delete address failed:", err);
+        }
     };
 
     return (
@@ -197,23 +207,47 @@ export default function Profile() {
                 {/* Address List */}
                 {addresses.length > 0 ? (
                     <ul className="space-y-3">
-                        {addresses.map((addr) => (
+                        {addresses.map((addr, index) => (
                             <li
-                                key={addr._id}
-                                className="p-4 border rounded-lg bg-gray-50 shadow-sm"
+                                key={addr._id || index}
+                                className="p-4 border rounded-lg bg-gray-50 shadow-sm flex justify-between items-start"
                             >
-                                <p className="font-semibold">{addr.name}</p>
-                                <p>{addr.line1}{addr.line2 && `, ${addr.line2}`}</p>
-                                <p>
-                                    {addr.city}, {addr.state} - {addr.postalCode}
-                                </p>
-                                <p>{addr.country}</p>
-                                <p className="text-sm text-gray-500">📞 {addr.phone}</p>
-                                {addr.isDefault && (
-                                    <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded mt-1 inline-block">
-                                        Default
-                                    </span>
-                                )}
+                                <div>
+                                    <p className="font-semibold">{addr.name}</p>
+                                    <p>{addr.line1}{addr.line2 && `, ${addr.line2}`}</p>
+                                    <p>
+                                        {addr.city}, {addr.state} - {addr.postalCode}
+                                    </p>
+                                    <p>{addr.country}</p>
+                                    <p className="text-sm text-gray-500">📞 {addr.phone}</p>
+                                    {addr.isDefault && (
+                                        <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded mt-1 inline-block">
+                                            Default
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Delete Button */}
+                                <button
+                                    onClick={() => handleRemoveAddress(index)}
+                                    className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded transition-colors duration-200"
+                                    title="Delete Address"
+                                >
+                                    <span>Delete</span>
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        />
+                                    </svg>
+                                </button>
                             </li>
                         ))}
                     </ul>
