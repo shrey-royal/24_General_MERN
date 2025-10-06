@@ -4,41 +4,51 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 
 const chargeCreditCard = async ({ amount, cardNumber, expiration, cardCode }) => {
-  const merchantAuth = new APIContracts.MerchantAuthenticationType();
-  merchantAuth.setName(process.env.AUTH_NET_API_LOGIN_ID);
-  merchantAuth.setTransactionKey(process.env.AUTH_NET_TRANSACTION_KEY);
-
-  const creditCard = new APIContracts.CreditCardType();
-  creditCard.setCardNumber(cardNumber);
-  creditCard.setExpirationDate(expiration); // "YYYY-MM"
-  creditCard.setCardCode(cardCode);
-
-  const paymentType = new APIContracts.PaymentType();
-  paymentType.setCreditCard(creditCard);
-
-  const transactionRequest = new APIContracts.TransactionRequestType();
-  transactionRequest.setTransactionType(APIContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION);
-  transactionRequest.setPayment(paymentType);
-  transactionRequest.setAmount(amount);
-
-  const createRequest = new APIContracts.CreateTransactionRequest();
-  createRequest.setMerchantAuthentication(merchantAuth);
-  createRequest.setTransactionRequest(transactionRequest);
-
-  const ctrl = new APIControllers.CreateTransactionController(createRequest.getJSON());
-  
-  ctrl.execute();
-  
   return new Promise((resolve, reject) => {
-    ctrl.getResponse((response) => {
+    const merchantAuth = new APIContracts.MerchantAuthenticationType();
+    merchantAuth.setName(process.env.AUTH_NET_API_LOGIN_ID);
+    merchantAuth.setTransactionKey(process.env.AUTH_NET_TRANSACTION_KEY);
+
+    const creditCard = new APIContracts.CreditCardType();
+    creditCard.setCardNumber(cardNumber);
+    creditCard.setExpirationDate(expiration); // "YYYY-MM"
+    creditCard.setCardCode(cardCode);
+
+    const paymentType = new APIContracts.PaymentType();
+    paymentType.setCreditCard(creditCard);
+
+    const transactionRequest = new APIContracts.TransactionRequestType();
+    transactionRequest.setTransactionType(
+      APIContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION
+    );
+    transactionRequest.setPayment(paymentType);
+    transactionRequest.setAmount(amount);
+
+    const createRequest = new APIContracts.CreateTransactionRequest();
+    createRequest.setMerchantAuthentication(merchantAuth);
+    createRequest.setTransactionRequest(transactionRequest);
+
+    const ctrl = new APIControllers.CreateTransactionController(createRequest.getJSON());
+
+    // ✅ Use the correct environment URLs
+    const env =
+      process.env.AUTH_NET_ENV === "production"
+        ? "https://api2.authorize.net/xml/v1/request.api"
+        : "https://apitest.authorize.net/xml/v1/request.api";
+
+    ctrl.setEnvironment(env);
+
+    ctrl.execute(() => {
+      const response = ctrl.getResponse();
       const apiResponse = new APIContracts.CreateTransactionResponse(response);
+
       if (!apiResponse) return reject(new Error("No response from Authorize.Net"));
 
       const resultCode = apiResponse.getMessages().getResultCode();
       const trxResponse = apiResponse.getTransactionResponse();
 
       if (resultCode === APIContracts.MessageTypeEnum.OK && trxResponse?.getMessages()) {
-        resolve({
+        return resolve({
           success: true,
           transactionId: trxResponse.getTransId(),
           authCode: trxResponse.getAuthCode(),
@@ -47,11 +57,12 @@ const chargeCreditCard = async ({ amount, cardNumber, expiration, cardCode }) =>
         const errText =
           trxResponse?.getErrors()?.getError()[0]?.getErrorText() ||
           apiResponse.getMessages().getMessage()[0].getText();
-        reject(new Error(errText || "Payment failed"));
+        return reject(new Error(errText || "Payment failed"));
       }
     });
   });
 };
+
 
 const checkout = asyncHandler(async (req, res) => {
   const { orderItems, shippingAddress, paymentMethod, cardInfo } = req.body;
@@ -63,7 +74,7 @@ const checkout = asyncHandler(async (req, res) => {
 
   let itemsPrice = 0;
 
-  // Validate stock and calculate total
+  // 🔹 Validate stock and calculate total
   for (const item of orderItems) {
     const product = await Product.findById(item.product);
     if (!product) {
@@ -95,11 +106,12 @@ const checkout = asyncHandler(async (req, res) => {
         expiration: cardInfo.expiration, // e.g. "2027-12"
         cardCode: cardInfo.cardCode,
       });
-      console.log(payment);
+
       transactionId = payment.transactionId;
       isPaid = true;
       paidAt = Date.now();
     } catch (err) {
+      console.error("❌ Payment Error (full):", err);
       res.status(400);
       throw new Error(`Payment failed: ${err.message}`);
     }

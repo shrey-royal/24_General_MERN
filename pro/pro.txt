@@ -1,0 +1,22 @@
+# Server Config
+PORT=5000
+
+# DB Config
+MONGO_URI=
+
+# Cloudinary Config
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# JWT Token Config
+JWT_SECRET=this-is-a-secret-key-to-create-jwt-token-super-secret
+JWT_EXPIRE=30d
+
+# ENV Config
+NODE_ENV=development
+
+# Payment Config
+AUTH_NET_API_LOGIN_ID=
+AUTH_NET_TRANSACTION_KEY=
+AUTH_NET_ENV=sandbox
